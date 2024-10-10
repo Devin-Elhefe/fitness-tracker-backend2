@@ -32,4 +32,40 @@ router.get("/", async function (req, res) {
   }
 });
 
+// This is the Create Goal Route!
+router.post("/:workoutid/goals", async function (req, res) {
+  console.log(req.body, "<-- goal data from form");
+  try {
+    
+    const workoutDoc = await WorkoutModel.findById(req.params.workoutid);
+    if (!workoutDoc) {
+      return res.status(404).json({ message: "Workout not found" });
+    }
+
+    workoutDoc.goals.push(req.body);
+    
+    await workoutDoc.save();
+    
+    res.status(201).json(workoutDoc);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// This is the delete Route!
+router.delete("/:workoutid", async function (req, res) {
+  try {
+    const deletedWorkout = await WorkoutModel.findByIdAndDelete(req.params.workoutid);
+    if (!deletedWorkout) {
+      return res.status(404).json({ message: "Workout not found" });
+    }
+    res.status(200).json({ message: "Workout deleted successfully", workout: deletedWorkout });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
