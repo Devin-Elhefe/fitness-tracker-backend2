@@ -4,9 +4,14 @@ const cors = require("cors");
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
+// IMPORT CONTROLLERS
 const testJWTRouter = require("./controllers/test-jwt");
 const usersRouter = require("./controllers/users");
 const profilesRouter = require("./controllers/profiles");
+const workoutRouter = require("./controllers/workouts");
+
+//IMPORT MIDDLEWARE
+const verifyToken = require("./middleware/verify-token");
 
 mongoose.connect(process.env.MONGODB_URI);
 
@@ -20,7 +25,11 @@ app.use(express.json());
 app.use("/test-jwt", testJWTRouter);
 app.use("/users", usersRouter);
 app.use("/profiles", profilesRouter);
-
+// This will make req.user available in every hoot controller function
+// this decodes the jwt
+app.use(verifyToken);
+// add router route here
+app.use("/workouts", workoutRouter);
 app.listen(3000, () => {
   console.log("The express app is ready!");
 });
