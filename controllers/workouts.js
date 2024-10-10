@@ -20,7 +20,6 @@ router.post("/", async function (req, res) {
   }
 });
 
-
 // This is the show Route!
 router.get("/", async function (req, res) {
   try {
@@ -53,7 +52,6 @@ router.post("/:workoutid/goals", async function (req, res) {
   }
 });
 
-
 // This is the delete Route!
 router.delete("/:workoutid", async function (req, res) {
   try {
@@ -65,6 +63,27 @@ router.delete("/:workoutid", async function (req, res) {
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: err.message });
+  }
+});
+
+// This is the show route!
+router.get('/:id', async function(req, res) {
+  try {
+      const workoutDoc = await WorkoutModel.findById(req.params.id);
+      res.status(200).json(workoutDoc);
+  } catch(error) {
+      res.status(500).json({error: error.message});
+  }
+});
+
+// This is the update route!
+router.put('/:id', async function(req, res) {
+  try {
+      const workoutDoc = await WorkoutModel.findById(req.params.id);
+      const updateWorkout = await WorkoutModel.findByIdAndUpdate(req.params.id, req.body, {new: true});
+      res.status(200).json(updateWorkout);
+  } catch(error) {
+      res.status(500).json({error: error.message});
   }
 });
 
