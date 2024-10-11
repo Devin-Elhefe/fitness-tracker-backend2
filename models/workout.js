@@ -4,7 +4,7 @@ const goalSchema = mongoose.Schema({
   goalType: {
     type: String,
     required: true,
-    enums: [
+    enum: [
       "Weight Loss",
       "Muscle Gain",
       "Steps",
