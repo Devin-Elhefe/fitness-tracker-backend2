@@ -105,4 +105,28 @@ router.put("/:id", async function (req, res) {
   }
 });
 
+// Update if goal is complete route!
+router.put("/:workoutid/goals/:goalid", async function (req, res) {
+  try {
+    const workoutDoc = await WorkoutModel.findById(req.params.workoutid);
+    if (!workoutDoc) {
+      return res.status(404).json({ message: "Workout not found" });
+    }
+
+    // Find the goal and update the isComplete status
+    const goal = workoutDoc.goals.id(req.params.goalid);
+    if (!goal) {
+      return res.status(404).json({ message: "Goal not found" });
+    }
+
+    goal.isComplete = req.body.isComplete;
+
+    await workoutDoc.save();
+    res.status(200).json(workoutDoc);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
