@@ -1,14 +1,17 @@
 const express = require("express");
 const router = express.Router();
 const WorkoutModel = require("../models/workout");
+const verifyToken = require('../middleware/verify-token');
 
-// Routes go here!
+// Middleware to verify token
+router.use(verifyToken);
 
 // This is the create Route!
-router.post("/", async function (req, res) {
+router.post("/", async (req, res) => {
   console.log(req.body, "<-- contents of the form");
   console.log(req.user, "<-- req.user from the jwt");
-  req.body.user = req.user._id;
+
+  req.body.user = req.user._id; 
 
   try {
     const workoutDoc = await WorkoutModel.create(req.body);
@@ -21,9 +24,9 @@ router.post("/", async function (req, res) {
 });
 
 // This is the show Route!
-router.get("/", async function (req, res) {
+router.get("/", async (req, res) => {
   try {
-    const workoutDocs = await WorkoutModel.find({});
+    const workoutDocs = await WorkoutModel.find({ user: req.user._id }); // Filter by user ID
     res.status(200).json(workoutDocs);
   } catch (err) {
     console.log(err);
@@ -32,7 +35,7 @@ router.get("/", async function (req, res) {
 });
 
 // This is the Create Goal Route!
-router.post("/:workoutid/goals", async function (req, res) {
+router.post("/:workoutid/goals", async (req, res) => {
   console.log(req.body, "<-- goal data from form");
 
   const { goalType, endDate } = req.body;
@@ -44,7 +47,10 @@ router.post("/:workoutid/goals", async function (req, res) {
   }
 
   try {
-    const workoutDoc = await WorkoutModel.findById(req.params.workoutid);
+    const workoutDoc = await WorkoutModel.findOne({
+      _id: req.params.workoutid,
+      user: req.user._id,
+    }); // Filter by user ID
     if (!workoutDoc) {
       return res.status(404).json({ message: "Workout not found" });
     }
@@ -60,11 +66,12 @@ router.post("/:workoutid/goals", async function (req, res) {
 });
 
 // This is the delete Route!
-router.delete("/:workoutid", async function (req, res) {
+router.delete("/:workoutid", async (req, res) => {
   try {
-    const deletedWorkout = await WorkoutModel.findByIdAndDelete(
-      req.params.workoutid
-    );
+    const deletedWorkout = await WorkoutModel.findOneAndDelete({
+      _id: req.params.workoutid,
+      user: req.user._id,
+    }); // Filter by user ID
     if (!deletedWorkout) {
       return res.status(404).json({ message: "Workout not found" });
     }
@@ -81,9 +88,15 @@ router.delete("/:workoutid", async function (req, res) {
 });
 
 // This is the show route!
-router.get("/:id", async function (req, res) {
+router.get("/:id", async (req, res) => {
   try {
-    const workoutDoc = await WorkoutModel.findById(req.params.id);
+    const workoutDoc = await WorkoutModel.findOne({
+      _id: req.params.id,
+      user: req.user._id,
+    }); // Filter by user ID
+    if (!workoutDoc) {
+      return res.status(404).json({ message: "Workout not found" });
+    }
     res.status(200).json(workoutDoc);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -91,24 +104,34 @@ router.get("/:id", async function (req, res) {
 });
 
 // This is the update route!
-router.put("/:id", async function (req, res) {
+router.put("/:id", async (req, res) => {
   try {
-    const workoutDoc = await WorkoutModel.findById(req.params.id);
-    const updateWorkout = await WorkoutModel.findByIdAndUpdate(
+    const workoutDoc = await WorkoutModel.findOne({
+      _id: req.params.id,
+      user: req.user._id,
+    }); // Filter by user ID
+    if (!workoutDoc) {
+      return res.status(404).json({ message: "Workout not found" });
+    }
+
+    const updatedWorkout = await WorkoutModel.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true }
     );
-    res.status(200).json(updateWorkout);
+    res.status(200).json(updatedWorkout);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
 // Update if goal is complete route!
-router.put("/:workoutid/goals/:goalid", async function (req, res) {
+router.put("/:workoutid/goals/:goalid", async (req, res) => {
   try {
-    const workoutDoc = await WorkoutModel.findById(req.params.workoutid);
+    const workoutDoc = await WorkoutModel.findOne({
+      _id: req.params.workoutid,
+      user: req.user._id,
+    }); // Filter by user ID
     if (!workoutDoc) {
       return res.status(404).json({ message: "Workout not found" });
     }
