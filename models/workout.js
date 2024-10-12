@@ -32,9 +32,7 @@ const workoutSchema = mongoose.Schema({
   notes: { type: String },
   user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   goals: [goalSchema],
+  startDate: { type: Date}
 });
 
 module.exports = mongoose.model("Workout", workoutSchema);
-
-
-
