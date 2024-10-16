@@ -13,6 +13,8 @@ const workoutRouter = require("./controllers/workouts");
 //IMPORT MIDDLEWARE
 const verifyToken = require("./middleware/verify-token");
 
+const port = process.env.PORT ? process.env.PORT : "3000";
+
 mongoose.connect(process.env.MONGODB_URI);
 
 mongoose.connection.on("connected", () => {
@@ -30,6 +32,6 @@ app.use("/profiles", profilesRouter);
 app.use(verifyToken);
 // add router route here
 app.use("/workouts", workoutRouter);
-app.listen(3000, () => {
+app.listen(port, () => {
   console.log("The express app is ready!");
 });
